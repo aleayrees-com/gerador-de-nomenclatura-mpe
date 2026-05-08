@@ -44,7 +44,6 @@
   }
   .copy-btn:hover { background: #f5f4f0; color: #1a1a1a; }
   .copy-btn.ok { color: #1f8a4c; border-color: #1f8a4c; }
-  .divider { border: none; border-top: 1px solid #f0ede8; margin: .75rem 0; }
 </style>
 </head>
 <body>
@@ -54,7 +53,6 @@
     <p class="subtitle">Meta Ads — Campanha · Conjunto · Anúncio</p>
   </div>
 
-  <!-- CAMPANHA -->
   <div class="card">
     <div class="card-title">Campanha</div>
     <div class="fields">
@@ -81,7 +79,7 @@
           <option>LEAD</option>
           <option>PROVA SOCIAL</option>
           <option>LEMBRETE</option>
-          <option>FORMS</option>
+          <option>GERAÇÃO DE CADASTRO</option>
           <option>ENGAJAMENTO</option>
           <option>RECONHECIMENTO</option>
         </select>
@@ -121,7 +119,6 @@
     </div>
   </div>
 
-  <!-- CONJUNTO -->
   <div class="card">
     <div class="card-title">Conjunto de anúncios</div>
     <div class="fields">
@@ -130,7 +127,7 @@
         <select id="a-publico" onchange="render()">
           <option value="">—</option>
           <option>MIX</option>
-          <option>LaL</option>
+          <option>LOOK A LIKE</option>
           <option>ABERTO</option>
           <option>INTERESSE</option>
           <option>VIDEOVIEW</option>
@@ -191,7 +188,6 @@
     </div>
   </div>
 
-  <!-- ANÚNCIO -->
   <div class="card">
     <div class="card-title">Anúncio</div>
     <div class="fields">
@@ -227,44 +223,35 @@
 
 <script>
 let selectedEmojis = [];
-
 function toggleEmoji(btn) {
-  const v = btn.dataset.v;
-  const i = selectedEmojis.indexOf(v);
+  const v = btn.dataset.v, i = selectedEmojis.indexOf(v);
   if (i > -1) { selectedEmojis.splice(i, 1); btn.classList.remove('sel'); }
   else { selectedEmojis.push(v); btn.classList.add('sel'); }
   render();
 }
-
 function g(id) { return document.getElementById(id); }
 function val(id) { const el = g(id); return el && el.value ? el.value.trim() : ''; }
-
 function setResult(id, text) {
   const el = g(id);
-  if (!text || text === '—') { el.textContent = 'Preencha os campos acima'; el.classList.add('empty'); }
+  if (!text) { el.textContent = 'Preencha os campos acima'; el.classList.add('empty'); }
   else { el.textContent = text; el.classList.remove('empty'); }
 }
-
 function render() {
   const prod = val('c-produto'), obj = val('c-objetivo'), fmt = val('c-formato'), est = val('c-estrategia'), extra = val('c-extra');
-  const emojis = selectedEmojis.join('');
-  let camp = [prod, obj, fmt, est, emojis].filter(x => x).join(' | ');
+  let camp = [prod, obj, fmt, est, selectedEmojis.join('')].filter(x => x).join(' | ');
   if (extra) camp += ' - ' + extra.toUpperCase();
   setResult('c-result', camp);
 
   const pub = val('a-publico'), imin = val('a-imin'), imax = val('a-imax');
-  const loc = val('a-local'), gen = val('a-genero'), pos = val('a-pos'), aex = val('a-extra');
   const idade = imin && imax ? imin + '-' + imax : (imin || imax || '');
-  let conj = [pub, idade, loc, gen, pos].filter(x => x).join(' | ');
-  if (aex) conj += ' | ' + aex.toUpperCase();
+  let conj = [pub, idade, val('a-local'), val('a-genero'), val('a-pos')].filter(x => x).join(' | ');
+  const aex = val('a-extra'); if (aex) conj += ' | ' + aex.toUpperCase();
   setResult('a-result', conj);
 
   const cod = val('ad-cod'), nome = val('ad-nome').toUpperCase(), fmtAd = val('ad-formato'), adex = val('ad-extra');
   const parts = [cod, nome, fmtAd, adex ? adex.toUpperCase() : ''].filter(x => x);
-  const anuncio = parts.length ? parts.join(' | ') + ' |' : '';
-  setResult('ad-result', anuncio);
+  setResult('ad-result', parts.length ? parts.join(' | ') + ' |' : '');
 }
-
 function copy(resultId, btnId) {
   const t = g(resultId).textContent;
   if (!t || t === 'Preencha os campos acima') return;
