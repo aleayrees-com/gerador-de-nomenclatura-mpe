@@ -143,7 +143,7 @@ const commonMeta = {
   ],
   setFields: [
     { id: 'a-publico', label: 'Público', type: 'select', options: ['MIX', 'LOOK A LIKE', 'ABERTO', 'INTERESSE', 'VIDEOVIEW', 'RMKT', 'TESTE', 'ADVANTAGE', 'PAGE VIEW'] },
-    { id: 'a-idade', label: 'Idade', type: 'age', min: 13, max: 66 },
+    { id: 'a-idade', label: 'Idade', type: 'age', min: 13, max: 120 },
     { id: 'a-local', label: 'Localização', type: 'select', options: ['BRASIL', 'SEM-LOCALIZACAO', 'RAIO 1KM', 'RAIO 2KM', 'RAIO 3KM', 'RAIO 4KM', 'RAIO 5KM', 'RAIO 6KM', 'RAIO 7KM', 'RAIO 8KM', 'RAIO 9KM', 'RAIO 10KM', 'RAIO 11KM', 'RAIO 12KM', 'RAIO 13KM', 'RAIO 14KM', 'RAIO 15KM'] },
     { id: 'a-genero', label: 'Gênero', type: 'select', options: ['HM', 'H', 'M'] },
     { id: 'a-pos', label: 'Posicionamento', type: 'select', options: ['ADV', 'STORIES', 'FEED', 'SORIES', 'REELS'] },
@@ -190,7 +190,7 @@ const configs = {
         ],
         setFields: [
           { id: 'a-publico', label: 'Público', type: 'select', options: ['PALAVRA-CHAVE', 'AFINIDADE', 'MIX', 'MERCADO', 'TÓPICOS', 'DEMOGRÁFICOS', 'SEMELHANTES', 'ADVANTAGE', 'VISITANTES DO SITE', 'PERSONALIZADOS', 'INTERESSES', 'COMBINADOS', 'LISTAS', 'YOUTUBE'] },
-          { id: 'a-idade', label: 'Idade', type: 'age', min: 13, max: 66 },
+          { id: 'a-idade', label: 'Idade', type: 'age', min: 13, max: 120 },
           { id: 'a-local', label: 'Localização', type: 'select', options: ['BRASIL', 'SEM-LOCALIZACAO'] },
           { id: 'a-genero', label: 'Gênero', type: 'select', options: ['HM', 'H', 'M'] },
           { id: 'a-pos', label: 'Posicionamento', type: 'select', options: ['ADV', 'STORIES', 'FEED', 'SORIES', 'REELS'] },
@@ -248,7 +248,10 @@ function g(id) { return document.getElementById(id); }
 function val(id) { const el = g(id); return el && el.value ? el.value.trim() : ''; }
 function currentConfig() { return configs[activeClient]?.platforms[activePlatform] || null; }
 function appendExtra(text, extra, sep) { return extra ? `${text}${text ? sep : ''}${extra.toUpperCase()}` : text; }
-function formatAge(age) { return age === '66' ? '65+' : age; }
+function formatAge(age) {
+  const numericAge = Number(age);
+  return Number.isFinite(numericAge) && numericAge > 65 ? '65+' : age;
+}
 
 function init() {
   g('client-grid').innerHTML = Object.entries(configs).map(([key, client]) => `
