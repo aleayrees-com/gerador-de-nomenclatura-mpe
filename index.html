@@ -3,264 +3,409 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gerador de Nomenclatura — Meta Ads</title>
+<title>Gerador de Nomenclatura</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; min-height: 100vh; padding: 2rem 1rem; }
-  h1 { font-size: 18px; font-weight: 600; color: #1a1a1a; margin-bottom: .25rem; }
-  .subtitle { font-size: 13px; color: #888; margin-bottom: 2rem; }
-  .container { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; }
-  .card { background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 1.25rem 1.5rem; }
-  .card-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: #aaa; margin-bottom: 1rem; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f6f5f1; color: #171717; min-height: 100vh; padding: 2rem 1rem; }
+  button, input, select { font: inherit; }
+  .container { max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: 1rem; }
+  .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  h1 { font-size: 20px; font-weight: 650; color: #171717; margin-bottom: .25rem; }
+  .subtitle { font-size: 13px; color: #707070; }
+  .client-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .75rem; margin-top: .5rem; }
+  .client-card { min-height: 112px; text-align: left; background: #fff; border: 1px solid #e3e0d8; border-radius: 8px; padding: 1rem; cursor: pointer; transition: border .18s, transform .18s, box-shadow .18s; }
+  .client-card:hover, .client-card:focus-visible { border-color: #35206f; box-shadow: 0 10px 24px rgba(36, 24, 71, .08); transform: translateY(-1px); outline: none; }
+  .client-card strong { display: block; font-size: 15px; margin-bottom: .35rem; }
+  .client-card span { display: block; font-size: 12px; line-height: 1.45; color: #666; }
+  .switches { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+  .client-select, .platform-btn, .back-btn {
+    height: 36px; border: 1px solid #dedad1; border-radius: 8px; background: #fff; color: #292929; cursor: pointer; transition: border .15s, background .15s, color .15s;
+  }
+  .client-select { padding: 0 32px 0 10px; font-size: 13px; }
+  .platform-btn, .back-btn { padding: 0 12px; font-size: 12px; font-weight: 650; }
+  .platform-btn.active { background: #35206f; border-color: #35206f; color: #fff; }
+  .platform-btn:disabled { color: #aaa; cursor: not-allowed; background: #f4f2ed; }
+  .back-btn:hover, .client-select:focus, .platform-btn:not(:disabled):hover { border-color: #35206f; outline: none; }
+  .card { background: #fff; border: 1px solid #e3e0d8; border-radius: 8px; padding: 1.25rem 1.5rem; }
+  .card-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #8b8790; margin-bottom: 1rem; }
   .fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
   .field { display: flex; flex-direction: column; gap: 4px; }
-  .field label { font-size: 12px; color: #666; font-weight: 500; }
+  .field label { font-size: 12px; color: #5d5a61; font-weight: 550; }
   .field select, .field input[type="text"], .field input[type="number"] {
-    height: 36px; padding: 0 10px; border: 1px solid #e0ddd8; border-radius: 8px;
-    font-size: 13px; background: #faf9f7; color: #1a1a1a; outline: none; transition: border .15s;
+    height: 36px; padding: 0 10px; border: 1px solid #dedad1; border-radius: 8px;
+    font-size: 13px; background: #fbfaf8; color: #171717; outline: none; transition: border .15s, background .15s;
     -webkit-appearance: none; appearance: none;
   }
-  .field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
-  .field select:focus, .field input:focus { border-color: #1a1a1a; background: #fff; }
+  .field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b8790' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+  .field select:focus, .field input:focus { border-color: #35206f; background: #fff; }
   .age-group { display: flex; gap: 6px; align-items: center; }
-  .age-group span { font-size: 12px; color: #aaa; }
-  .age-group input { width: 62px; }
-  .emoji-row { display: flex; gap: 6px; margin-top: 6px; }
-  .emoji-btn {
-    width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent;
-    background: #f5f4f0; cursor: pointer; font-size: 15px; display: flex;
-    align-items: center; justify-content: center; transition: border .15s;
+  .age-group span { font-size: 12px; color: #8b8790; }
+  .age-group input { width: 72px; }
+  .audience-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .audience-btn {
+    min-width: 32px; height: 32px; border-radius: 999px; border: 2px solid transparent;
+    background: #f4f2ed; cursor: pointer; font-size: 14px; display: flex;
+    align-items: center; justify-content: center; transition: border .15s, background .15s;
   }
-  .emoji-btn.sel { border-color: #1a1a1a; }
+  .audience-btn.sel { border-color: #35206f; background: #fff; }
   .result-row {
-    margin-top: 1rem; padding: .75rem 1rem; background: #f5f4f0; border-radius: 8px;
+    margin-top: 1rem; padding: .75rem 1rem; background: #f4f2ed; border-radius: 8px;
     display: flex; align-items: center; gap: 12px; min-height: 44px;
   }
-  .result-text { font-size: 13px; font-weight: 600; color: #1a1a1a; flex: 1; word-break: break-all; }
-  .result-text.empty { color: #ccc; font-weight: 400; }
+  .result-text { font-size: 13px; font-weight: 650; color: #171717; flex: 1; word-break: break-word; }
+  .result-text.empty { color: #a8a39a; font-weight: 400; }
   .copy-btn {
-    background: #fff; border: 1px solid #e0ddd8; border-radius: 8px; padding: 6px 12px;
-    font-size: 12px; color: #666; cursor: pointer; white-space: nowrap; transition: all .15s;
+    background: #fff; border: 1px solid #dedad1; border-radius: 8px; padding: 6px 12px;
+    font-size: 12px; color: #5d5a61; cursor: pointer; white-space: nowrap; transition: all .15s;
   }
-  .copy-btn:hover { background: #f5f4f0; color: #1a1a1a; }
-  .copy-btn.ok { color: #1f8a4c; border-color: #1f8a4c; }
+  .copy-btn:hover { background: #f9f7f3; color: #171717; }
+  .copy-btn.ok { color: #1f7a4a; border-color: #1f7a4a; }
+  .empty-state { padding: 1rem; border: 1px dashed #c9c3ba; border-radius: 8px; background: #fff; color: #666; font-size: 13px; }
+  .hidden { display: none; }
+  @media (max-width: 560px) {
+    body { padding: 1rem; }
+    .card { padding: 1rem; }
+    .topbar { align-items: stretch; }
+    .switches { width: 100%; }
+    .client-select { flex: 1; min-width: 180px; }
+    .result-row { align-items: stretch; flex-direction: column; }
+  }
 </style>
 </head>
 <body>
 <div class="container">
-  <div>
-    <h1>Gerador de Nomenclatura</h1>
-    <p class="subtitle">Meta Ads — Campanha · Conjunto · Anúncio</p>
-  </div>
+  <section id="start-screen">
+    <div>
+      <h1>Gerador de Nomenclatura</h1>
+      <p class="subtitle">Selecione o cliente para carregar as regras corretas.</p>
+    </div>
+    <div class="client-grid" id="client-grid"></div>
+  </section>
 
-  <div class="card">
-    <div class="card-title">Campanha</div>
-    <div class="fields">
-      <div class="field">
-        <label>Produto</label>
-        <select id="c-produto" onchange="render()">
-          <option value="">—</option>
-          <option value="S&E">S&E — Saúde e Estética</option>
-          <option value="RB">RB — Rota Bioceânica</option>
-          <option value="UTI">UTI</option>
-          <option value="AC">AC — Análise Clínica</option>
-          <option value="BM">BM — Biomecânica</option>
-          <option value="FIS">FIS — Fisioterapia</option>
-          <option value="NUT">NUT — Nutrição</option>
-          <option value="SPK">SPK — Speakers</option>
-        </select>
+  <section id="generator-screen" class="hidden">
+    <div class="topbar">
+      <div>
+        <h1 id="page-title">Gerador de Nomenclatura</h1>
+        <p class="subtitle" id="page-subtitle">Campanha · Conjunto · Anúncio</p>
       </div>
-      <div class="field">
-        <label>Objetivo</label>
-        <select id="c-objetivo" onchange="render()">
-          <option value="">—</option>
-          <option>VENDA</option>
-          <option>CONTEUDO</option>
-          <option>LEAD</option>
-          <option>PROVA SOCIAL</option>
-          <option>LEMBRETE</option>
-          <option>GERAÇÃO DE CADASTRO</option>
-          <option>ENGAJAMENTO</option>
-          <option>RECONHECIMENTO</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Formato</label>
-        <select id="c-formato" onchange="render()">
-          <option value="">—</option>
-          <option>CONTÍNUA</option>
-          <option>TEMPORÁRIA</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Estratégia</label>
-        <select id="c-estrategia" onchange="render()">
-          <option value="">—</option>
-          <option>CBO</option>
-          <option>ABO</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Extra</label>
-        <input type="text" id="c-extra" placeholder="opcional" oninput="render()">
+      <div class="switches">
+        <button class="back-btn" type="button" onclick="showStart()">Clientes</button>
+        <select class="client-select" id="client-select" onchange="selectClient(this.value)"></select>
+        <button class="platform-btn" id="platform-meta" type="button" onclick="selectPlatform('meta')">META</button>
+        <button class="platform-btn" id="platform-google" type="button" onclick="selectPlatform('google')">GOOGLE</button>
       </div>
     </div>
-    <div class="field" style="margin-top:12px">
-      <label>Tipo de Público</label>
-      <div class="emoji-row">
-        <button class="emoji-btn" data-v="🔴" onclick="toggleEmoji(this)">🔴</button>
-        <button class="emoji-btn" data-v="🔵" onclick="toggleEmoji(this)">🔵</button>
-        <button class="emoji-btn" data-v="🟡" onclick="toggleEmoji(this)">🟡</button>
-      </div>
-    </div>
-    <div class="result-row">
-      <span class="result-text empty" id="c-result">Preencha os campos acima</span>
-      <button class="copy-btn" id="c-copy" onclick="copy('c-result','c-copy')">Copiar</button>
-    </div>
-  </div>
+    <div id="empty-platform" class="empty-state hidden">Este cliente ainda não tem nomenclatura cadastrada para esta plataforma.</div>
 
-  <div class="card">
-    <div class="card-title">Conjunto de anúncios</div>
-    <div class="fields">
-      <div class="field">
-        <label>Público</label>
-        <select id="a-publico" onchange="render()">
-          <option value="">—</option>
-          <option>MIX</option>
-          <option>LOOK A LIKE</option>
-          <option>ABERTO</option>
-          <option>INTERESSE</option>
-          <option>VIDEOVIEW</option>
-          <option>RMKT</option>
-          <option>TESTE</option>
-          <option>ADVANTAGE</option>
-          <option>PAGE VIEW</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Idade</label>
-        <div class="age-group">
-          <input type="number" id="a-imin" min="13" max="65" placeholder="min" oninput="render()">
-          <span>–</span>
-          <input type="number" id="a-imax" min="13" max="65" placeholder="max" oninput="render()">
+    <div id="forms">
+      <div class="card">
+        <div class="card-title">Campanha</div>
+        <div class="fields" id="campaign-fields"></div>
+        <div class="field" id="audience-field" style="margin-top:12px">
+          <label>Tipo de Público</label>
+          <div class="audience-row" id="audience-buttons"></div>
+        </div>
+        <div class="result-row">
+          <span class="result-text empty" id="c-result">Preencha os campos acima</span>
+          <button class="copy-btn" id="c-copy" type="button" onclick="copyResult('c-result','c-copy')">Copiar</button>
         </div>
       </div>
-      <div class="field">
-        <label>Localização</label>
-        <select id="a-local" onchange="render()">
-          <option value="">—</option>
-          <option>BRASIL</option>
-          <option>SEM-LOCALIZACAO</option>
-          <option>RAIO 1KM</option><option>RAIO 2KM</option><option>RAIO 3KM</option>
-          <option>RAIO 4KM</option><option>RAIO 5KM</option><option>RAIO 6KM</option>
-          <option>RAIO 7KM</option><option>RAIO 8KM</option><option>RAIO 9KM</option>
-          <option>RAIO 10KM</option><option>RAIO 11KM</option><option>RAIO 12KM</option>
-          <option>RAIO 13KM</option><option>RAIO 14KM</option><option>RAIO 15KM</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Gênero</label>
-        <select id="a-genero" onchange="render()">
-          <option value="">—</option>
-          <option>HM</option>
-          <option>H</option>
-          <option>M</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Posicionamento</label>
-        <select id="a-pos" onchange="render()">
-          <option value="">—</option>
-          <option>ADV</option>
-          <option>STORIES</option>
-          <option>FEED</option>
-          <option>REELS</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Extra</label>
-        <input type="text" id="a-extra" placeholder="opcional" oninput="render()">
-      </div>
-    </div>
-    <div class="result-row">
-      <span class="result-text empty" id="a-result">Preencha os campos acima</span>
-      <button class="copy-btn" id="a-copy" onclick="copy('a-result','a-copy')">Copiar</button>
-    </div>
-  </div>
 
-  <div class="card">
-    <div class="card-title">Anúncio</div>
-    <div class="fields">
-      <div class="field">
-        <label>Cod do Criativo</label>
-        <input type="text" id="ad-cod" placeholder="ID 01" oninput="render()">
+      <div class="card">
+        <div class="card-title">Conjunto de anúncios</div>
+        <div class="fields" id="set-fields"></div>
+        <div class="result-row">
+          <span class="result-text empty" id="a-result">Preencha os campos acima</span>
+          <button class="copy-btn" id="a-copy" type="button" onclick="copyResult('a-result','a-copy')">Copiar</button>
+        </div>
       </div>
-      <div class="field">
-        <label>Nome do Criativo</label>
-        <input type="text" id="ad-nome" placeholder="Vagas abertas" oninput="render()">
-      </div>
-      <div class="field">
-        <label>Formato</label>
-        <select id="ad-formato" onchange="render()">
-          <option value="">—</option>
-          <option>IMG</option>
-          <option>REEL</option>
-          <option>CAR</option>
-          <option>MOTION</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Extra</label>
-        <input type="text" id="ad-extra" placeholder="opcional" oninput="render()">
+
+      <div class="card">
+        <div class="card-title">Anúncio</div>
+        <div class="fields" id="ad-fields"></div>
+        <div class="result-row">
+          <span class="result-text empty" id="ad-result">Preencha os campos acima</span>
+          <button class="copy-btn" id="ad-copy" type="button" onclick="copyResult('ad-result','ad-copy')">Copiar</button>
+        </div>
       </div>
     </div>
-    <div class="result-row">
-      <span class="result-text empty" id="ad-result">Preencha os campos acima</span>
-      <button class="copy-btn" id="ad-copy" onclick="copy('ad-result','ad-copy')">Copiar</button>
-    </div>
-  </div>
+  </section>
 </div>
 
 <script>
-let selectedEmojis = [];
-function toggleEmoji(btn) {
-  const v = btn.dataset.v, i = selectedEmojis.indexOf(v);
-  if (i > -1) { selectedEmojis.splice(i, 1); btn.classList.remove('sel'); }
-  else { selectedEmojis.push(v); btn.classList.add('sel'); }
-  render();
-}
+const commonMeta = {
+  campaignFields: [
+    { id: 'c-produto', label: 'Produto', type: 'select', source: 'products' },
+    { id: 'c-objetivo', label: 'Objetivo', type: 'select', options: ['VENDA', 'CONTEUDO', 'LEAD', 'PROVA SOCIAL', 'LEMBRETE', 'GERAÇÃO DE CADASTRO', 'ENGAJAMENTO', 'RECONHECIMENTO'] },
+    { id: 'c-formato', label: 'Formato', type: 'select', options: ['CONTÍNUA', 'TEMPORÁRIA'] },
+    { id: 'c-estrategia', label: 'Estratégia', type: 'select', options: ['CBO', 'ABO'] },
+    { id: 'c-extra', label: 'Extra', type: 'text', placeholder: 'opcional' },
+  ],
+  setFields: [
+    { id: 'a-publico', label: 'Público', type: 'select', options: ['MIX', 'LOOK A LIKE', 'ABERTO', 'INTERESSE', 'VIDEOVIEW', 'RMKT', 'TESTE', 'ADVANTAGE', 'PAGE VIEW'] },
+    { id: 'a-idade', label: 'Idade', type: 'age', min: 13, max: 66 },
+    { id: 'a-local', label: 'Localização', type: 'select', options: ['BRASIL', 'SEM-LOCALIZACAO', 'RAIO 1KM', 'RAIO 2KM', 'RAIO 3KM', 'RAIO 4KM', 'RAIO 5KM', 'RAIO 6KM', 'RAIO 7KM', 'RAIO 8KM', 'RAIO 9KM', 'RAIO 10KM', 'RAIO 11KM', 'RAIO 12KM', 'RAIO 13KM', 'RAIO 14KM', 'RAIO 15KM'] },
+    { id: 'a-genero', label: 'Gênero', type: 'select', options: ['HM', 'H', 'M'] },
+    { id: 'a-pos', label: 'Posicionamento', type: 'select', options: ['ADV', 'STORIES', 'FEED', 'SORIES', 'REELS'] },
+    { id: 'a-extra', label: 'Extra', type: 'text', placeholder: 'opcional' },
+  ],
+  adFields: [
+    { id: 'ad-cod', label: 'Cod do Criativo', type: 'text', placeholder: 'ID 01' },
+    { id: 'ad-nome', label: 'Nome do Criativo', type: 'text', placeholder: 'Vagas abertas' },
+    { id: 'ad-formato', label: 'Formato', type: 'select', options: ['IMG', 'REEL', 'CAR', 'MOTION'] },
+    { id: 'ad-extra', label: 'Extra', type: 'text', placeholder: 'opcional' },
+  ],
+  audience: ['🔴', '🔵', '🟡'],
+  renderCampaign: () => {
+    const camp = [val('c-produto'), val('c-objetivo'), val('c-formato'), val('c-estrategia'), selectedAudience.join('')].filter(Boolean).join(' | ');
+    return appendExtra(camp, val('c-extra'), ' - ');
+  },
+};
+
+const configs = {
+  unigran: {
+    name: 'UNIGRAN',
+    description: 'Pós Unigran',
+    platforms: {
+      meta: {
+        ...commonMeta,
+        products: [
+          ['S&E', 'S&E — Saúde e Estética'],
+          ['RB', 'RB — Rota Bioceânica'],
+          ['UTI', 'UTI'],
+          ['AC', 'AC — Análise Clínica'],
+          ['BM', 'BM — Biomecânica'],
+          ['FIS', 'FIS — Fisioterapia'],
+          ['NUT', 'NUT — Nutrição'],
+          ['SPK', 'SPK — Speakers'],
+        ],
+      },
+      google: {
+        campaignFields: [
+          { id: 'c-produto', label: 'Produto', type: 'select', source: 'products' },
+          { id: 'c-tipo', label: 'Tipo de Campanha', type: 'select', options: ['SEARCH', 'P-MAX', 'DISPLAY', 'VÍDEO', 'GERAÇÃO DE DEMANDA', 'SHOPPING', 'APP', 'SMART'] },
+          { id: 'c-objetivo', label: 'Objetivo', type: 'select', options: ['VENDA', 'LEAD', 'TRÁFEGO', 'APP', 'RECONHECIMENTO', 'VISITAS'] },
+          { id: 'c-formato', label: 'Formato', type: 'select', options: ['CONTÍNUA', 'TEMPORÁRIA'] },
+          { id: 'c-extra', label: 'Extra', type: 'text', placeholder: 'opcional' },
+        ],
+        setFields: [
+          { id: 'a-publico', label: 'Público', type: 'select', options: ['PALAVRA-CHAVE', 'AFINIDADE', 'MIX', 'MERCADO', 'TÓPICOS', 'DEMOGRÁFICOS', 'SEMELHANTES', 'ADVANTAGE', 'VISITANTES DO SITE', 'PERSONALIZADOS', 'INTERESSES', 'COMBINADOS', 'LISTAS', 'YOUTUBE'] },
+          { id: 'a-idade', label: 'Idade', type: 'age', min: 13, max: 66 },
+          { id: 'a-local', label: 'Localização', type: 'select', options: ['BRASIL', 'SEM-LOCALIZACAO'] },
+          { id: 'a-genero', label: 'Gênero', type: 'select', options: ['HM', 'H', 'M'] },
+          { id: 'a-pos', label: 'Posicionamento', type: 'select', options: ['ADV', 'STORIES', 'FEED', 'SORIES', 'REELS'] },
+          { id: 'a-extra', label: 'Extra', type: 'text', placeholder: 'opcional' },
+        ],
+        adFields: [
+          { id: 'ad-cod', label: 'Cod do Criativo', type: 'text', placeholder: 'ID 01' },
+          { id: 'ad-nome', label: 'Nome do Criativo', type: 'text', placeholder: 'Vagas abertas' },
+          { id: 'ad-formato', label: 'Formato', type: 'select', options: ['IMG', 'VÍDEO', 'TEXTO'] },
+          { id: 'ad-extra', label: 'Extra', type: 'text', placeholder: 'opcional' },
+        ],
+        products: [
+          ['S&E', 'S&E — Saúde e Estética'],
+          ['RB', 'RB — Rota Bioceânica'],
+          ['UTI', 'UTI'],
+          ['AC', 'AC — Análise Clínica'],
+          ['BM', 'BM — Biomecânica'],
+          ['FIS', 'FIS — Fisioterapia'],
+          ['NUT', 'NUT — Nutrição'],
+          ['SPK', 'SPK — Speakers'],
+        ],
+        audience: ['🔴', '🔵', '🟡'],
+        renderCampaign: () => {
+          const camp = [val('c-produto'), val('c-tipo'), val('c-objetivo'), val('c-formato'), selectedAudience.join('')].filter(Boolean).join(' | ');
+          return appendExtra(camp, val('c-extra'), ' - ');
+        },
+      },
+    },
+  },
+  dicas: {
+    name: 'DICAS DE MAT',
+    description: 'Dicas de Mat',
+    platforms: {
+      meta: {
+        ...commonMeta,
+        products: [
+          ['EBK', 'EBK — Ebook'],
+          ['FOR', 'FOR — Formulário'],
+          ['MB', 'MB — Matemática Básica'],
+          ['MCV', 'MCV — Matemática Completa para Vestibulares'],
+          ['MCC', 'MCC — Matemática Completa para Concursos'],
+          ['MP', 'MP — Matemática Premium'],
+          ['RLM', 'RLM — Raciocínio Lógico'],
+        ],
+      },
+    },
+  },
+};
+
+let activeClient = '';
+let activePlatform = 'meta';
+let selectedAudience = [];
+
 function g(id) { return document.getElementById(id); }
 function val(id) { const el = g(id); return el && el.value ? el.value.trim() : ''; }
+function currentConfig() { return configs[activeClient]?.platforms[activePlatform] || null; }
+function appendExtra(text, extra, sep) { return extra ? `${text}${text ? sep : ''}${extra.toUpperCase()}` : text; }
+function formatAge(age) { return age === '66' ? '65+' : age; }
+
+function init() {
+  g('client-grid').innerHTML = Object.entries(configs).map(([key, client]) => `
+    <button class="client-card" type="button" onclick="openClient('${key}')">
+      <strong>${client.name}</strong>
+      <span>${Object.keys(client.platforms).map(platformLabel).join(' e ')} cadastrados</span>
+    </button>
+  `).join('');
+  g('client-select').innerHTML = Object.entries(configs).map(([key, client]) => `<option value="${key}">${client.name}</option>`).join('');
+}
+
+function platformLabel(platform) {
+  return platform === 'google' ? 'Google' : 'Meta';
+}
+
+function showStart() {
+  g('start-screen').classList.remove('hidden');
+  g('generator-screen').classList.add('hidden');
+}
+
+function openClient(clientKey) {
+  activeClient = clientKey;
+  activePlatform = configs[clientKey].platforms.meta ? 'meta' : Object.keys(configs[clientKey].platforms)[0];
+  g('client-select').value = clientKey;
+  g('start-screen').classList.add('hidden');
+  g('generator-screen').classList.remove('hidden');
+  rebuild();
+}
+
+function selectClient(clientKey) {
+  activeClient = clientKey;
+  if (!configs[clientKey].platforms[activePlatform]) activePlatform = configs[clientKey].platforms.meta ? 'meta' : Object.keys(configs[clientKey].platforms)[0];
+  rebuild();
+}
+
+function selectPlatform(platform) {
+  if (!configs[activeClient].platforms[platform]) return;
+  activePlatform = platform;
+  rebuild();
+}
+
+function rebuild() {
+  selectedAudience = [];
+  const client = configs[activeClient];
+  const cfg = currentConfig();
+  g('page-title').textContent = `${client.name} · ${platformLabel(activePlatform).toUpperCase()}`;
+  g('page-subtitle').textContent = `${client.description} — Campanha · Conjunto · Anúncio`;
+  g('platform-meta').classList.toggle('active', activePlatform === 'meta');
+  g('platform-google').classList.toggle('active', activePlatform === 'google');
+  g('platform-meta').disabled = !client.platforms.meta;
+  g('platform-google').disabled = !client.platforms.google;
+  g('empty-platform').classList.toggle('hidden', Boolean(cfg));
+  g('forms').classList.toggle('hidden', !cfg);
+  if (!cfg) return;
+  renderFieldGroup('campaign-fields', cfg.campaignFields, cfg);
+  renderFieldGroup('set-fields', cfg.setFields, cfg);
+  renderFieldGroup('ad-fields', cfg.adFields, cfg);
+  renderAudience(cfg.audience || []);
+  render();
+}
+
+function renderFieldGroup(targetId, fields, cfg) {
+  g(targetId).innerHTML = fields.map(field => renderField(field, cfg)).join('');
+}
+
+function renderField(field, cfg) {
+  if (field.type === 'age') {
+    return `
+      <div class="field">
+        <label>${field.label}</label>
+        <div class="age-group">
+          <input type="number" id="a-imin" min="${field.min}" max="${field.max}" placeholder="min" oninput="render()">
+          <span>-</span>
+          <input type="number" id="a-imax" min="${field.min}" max="${field.max}" placeholder="max" oninput="render()">
+        </div>
+      </div>
+    `;
+  }
+  if (field.type === 'select') {
+    const options = field.source === 'products' ? cfg.products : field.options.map(option => [option, option]);
+    return `
+      <div class="field">
+        <label>${field.label}</label>
+        <select id="${field.id}" onchange="render()">
+          <option value="">-</option>
+          ${options.map(([value, label]) => `<option value="${value}">${label}</option>`).join('')}
+        </select>
+      </div>
+    `;
+  }
+  return `
+    <div class="field">
+      <label>${field.label}</label>
+      <input type="text" id="${field.id}" placeholder="${field.placeholder || ''}" oninput="render()">
+    </div>
+  `;
+}
+
+function renderAudience(values) {
+  g('audience-field').classList.toggle('hidden', !values.length);
+  g('audience-buttons').innerHTML = values.map(value => `<button class="audience-btn" type="button" data-v="${value}" onclick="toggleAudience(this)">${value}</button>`).join('');
+}
+
+function toggleAudience(btn) {
+  const value = btn.dataset.v;
+  const index = selectedAudience.indexOf(value);
+  if (index > -1) {
+    selectedAudience.splice(index, 1);
+    btn.classList.remove('sel');
+  } else {
+    selectedAudience.push(value);
+    btn.classList.add('sel');
+  }
+  render();
+}
+
 function setResult(id, text) {
   const el = g(id);
-  if (!text) { el.textContent = 'Preencha os campos acima'; el.classList.add('empty'); }
-  else { el.textContent = text; el.classList.remove('empty'); }
+  if (!text) {
+    el.textContent = 'Preencha os campos acima';
+    el.classList.add('empty');
+    return;
+  }
+  el.textContent = text;
+  el.classList.remove('empty');
 }
+
 function render() {
-  const prod = val('c-produto'), obj = val('c-objetivo'), fmt = val('c-formato'), est = val('c-estrategia'), extra = val('c-extra');
-  let camp = [prod, obj, fmt, est, selectedEmojis.join('')].filter(x => x).join(' | ');
-  if (extra) camp += ' - ' + extra.toUpperCase();
-  setResult('c-result', camp);
+  const cfg = currentConfig();
+  if (!cfg) return;
+  setResult('c-result', cfg.renderCampaign());
 
-  const pub = val('a-publico'), imin = val('a-imin'), imax = val('a-imax');
-  const idade = imin && imax ? imin + '-' + imax : (imin || imax || '');
-  let conj = [pub, idade, val('a-local'), val('a-genero'), val('a-pos')].filter(x => x).join(' | ');
-  const aex = val('a-extra'); if (aex) conj += ' | ' + aex.toUpperCase();
-  setResult('a-result', conj);
+  const idadeMin = formatAge(val('a-imin'));
+  const idadeMax = formatAge(val('a-imax'));
+  const idade = idadeMin && idadeMax ? `${idadeMin}-${idadeMax}` : (idadeMin || idadeMax);
+  const setName = [val('a-publico'), idade, val('a-local'), val('a-genero'), val('a-pos')].filter(Boolean).join(' | ');
+  setResult('a-result', appendExtra(setName, val('a-extra'), ' | '));
 
-  const cod = val('ad-cod'), nome = val('ad-nome').toUpperCase(), fmtAd = val('ad-formato'), adex = val('ad-extra');
-  const parts = [cod, nome, fmtAd, adex ? adex.toUpperCase() : ''].filter(x => x);
-  setResult('ad-result', parts.length ? parts.join(' | ') + ' |' : '');
+  const adParts = [val('ad-cod'), val('ad-nome').toUpperCase(), val('ad-formato'), val('ad-extra').toUpperCase()].filter(Boolean);
+  setResult('ad-result', adParts.length ? `${adParts.join(' | ')} |` : '');
 }
-function copy(resultId, btnId) {
-  const t = g(resultId).textContent;
-  if (!t || t === 'Preencha os campos acima') return;
-  navigator.clipboard.writeText(t).then(() => {
-    const b = g(btnId);
-    b.classList.add('ok'); b.textContent = '✓ Copiado';
-    setTimeout(() => { b.classList.remove('ok'); b.textContent = 'Copiar'; }, 1500);
+
+function copyResult(resultId, btnId) {
+  const text = g(resultId).textContent;
+  if (!text || text === 'Preencha os campos acima') return;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = g(btnId);
+    btn.classList.add('ok');
+    btn.textContent = 'Copiado';
+    setTimeout(() => {
+      btn.classList.remove('ok');
+      btn.textContent = 'Copiar';
+    }, 1500);
   });
 }
+
+init();
 </script>
 </body>
 </html>
