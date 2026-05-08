@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Nomenclatura — Meta Ads</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; min-height: 100vh; padding: 2rem 1rem; }
+  h1 { font-size: 18px; font-weight: 600; color: #1a1a1a; margin-bottom: .25rem; }
+  .subtitle { font-size: 13px; color: #888; margin-bottom: 2rem; }
+  .container { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; }
+  .card { background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 1.25rem 1.5rem; }
+  .card-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: #aaa; margin-bottom: 1rem; }
+  .fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: #666; font-weight: 500; }
+  .field select, .field input[type="text"], .field input[type="number"] {
+    height: 36px; padding: 0 10px; border: 1px solid #e0ddd8; border-radius: 8px;
+    font-size: 13px; background: #faf9f7; color: #1a1a1a; outline: none; transition: border .15s;
+    -webkit-appearance: none; appearance: none;
+  }
+  .field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+  .field select:focus, .field input:focus { border-color: #1a1a1a; background: #fff; }
+  .age-group { display: flex; gap: 6px; align-items: center; }
+  .age-group span { font-size: 12px; color: #aaa; }
+  .age-group input { width: 62px; }
+  .emoji-row { display: flex; gap: 6px; margin-top: 6px; }
+  .emoji-btn {
+    width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent;
+    background: #f5f4f0; cursor: pointer; font-size: 15px; display: flex;
+    align-items: center; justify-content: center; transition: border .15s;
+  }
+  .emoji-btn.sel { border-color: #1a1a1a; }
+  .result-row {
+    margin-top: 1rem; padding: .75rem 1rem; background: #f5f4f0; border-radius: 8px;
+    display: flex; align-items: center; gap: 12px; min-height: 44px;
+  }
+  .result-text { font-size: 13px; font-weight: 600; color: #1a1a1a; flex: 1; word-break: break-all; }
+  .result-text.empty { color: #ccc; font-weight: 400; }
+  .copy-btn {
+    background: #fff; border: 1px solid #e0ddd8; border-radius: 8px; padding: 6px 12px;
+    font-size: 12px; color: #666; cursor: pointer; white-space: nowrap; transition: all .15s;
+  }
+  .copy-btn:hover { background: #f5f4f0; color: #1a1a1a; }
+  .copy-btn.ok { color: #1f8a4c; border-color: #1f8a4c; }
+  .divider { border: none; border-top: 1px solid #f0ede8; margin: .75rem 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div>
+    <h1>Gerador de Nomenclatura</h1>
+    <p class="subtitle">Meta Ads — Campanha · Conjunto · Anúncio</p>
+  </div>
+
+  <!-- CAMPANHA -->
+  <div class="card">
+    <div class="card-title">Campanha</div>
+    <div class="fields">
+      <div class="field">
+        <label>Produto</label>
+        <select id="c-produto" onchange="render()">
+          <option value="">—</option>
+          <option value="S&E">S&E — Saúde e Estética</option>
+          <option value="RB">RB — Rota Bioceânica</option>
+          <option value="UTI">UTI</option>
+          <option value="AC">AC — Análise Clínica</option>
+          <option value="BM">BM — Biomecânica</option>
+          <option value="FIS">FIS — Fisioterapia</option>
+          <option value="NUT">NUT — Nutrição</option>
+          <option value="SPK">SPK — Speakers</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Objetivo</label>
+        <select id="c-objetivo" onchange="render()">
+          <option value="">—</option>
+          <option>VENDA</option>
+          <option>CONTEUDO</option>
+          <option>LEAD</option>
+          <option>PROVA SOCIAL</option>
+          <option>LEMBRETE</option>
+          <option>GERAÇÃO DE CADASTRO</option>
+          <option>ENGAJAMENTO</option>
+          <option>RECONHECIMENTO</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Formato</label>
+        <select id="c-formato" onchange="render()">
+          <option value="">—</option>
+          <option>CONTÍNUA</option>
+          <option>TEMPORÁRIA</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Estratégia</label>
+        <select id="c-estrategia" onchange="render()">
+          <option value="">—</option>
+          <option>CBO</option>
+          <option>ABO</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Extra</label>
+        <input type="text" id="c-extra" placeholder="opcional" oninput="render()">
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label>Tipo de Público</label>
+      <div class="emoji-row">
+        <button class="emoji-btn" data-v="🔴" onclick="toggleEmoji(this)">🔴</button>
+        <button class="emoji-btn" data-v="🔵" onclick="toggleEmoji(this)">🔵</button>
+        <button class="emoji-btn" data-v="🟡" onclick="toggleEmoji(this)">🟡</button>
+      </div>
+    </div>
+    <div class="result-row">
+      <span class="result-text empty" id="c-result">Preencha os campos acima</span>
+      <button class="copy-btn" id="c-copy" onclick="copy('c-result','c-copy')">Copiar</button>
+    </div>
+  </div>
+
+  <!-- CONJUNTO -->
+  <div class="card">
+    <div class="card-title">Conjunto de anúncios</div>
+    <div class="fields">
+      <div class="field">
+        <label>Público</label>
+        <select id="a-publico" onchange="render()">
+          <option value="">—</option>
+          <option>MIX</option>
+          <option>LOOK A LIKE</option>
+          <option>ABERTO</option>
+          <option>INTERESSE</option>
+          <option>VIDEOVIEW</option>
+          <option>RMKT</option>
+          <option>TESTE</option>
+          <option>ADVANTAGE</option>
+          <option>PAGE VIEW</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Idade</label>
+        <div class="age-group">
+          <input type="number" id="a-imin" min="13" max="65" placeholder="min" oninput="render()">
+          <span>–</span>
+          <input type="number" id="a-imax" min="13" max="65" placeholder="max" oninput="render()">
+        </div>
+      </div>
+      <div class="field">
+        <label>Localização</label>
+        <select id="a-local" onchange="render()">
+          <option value="">—</option>
+          <option>BRASIL</option>
+          <option>SEM-LOCALIZACAO</option>
+          <option>RAIO 1KM</option><option>RAIO 2KM</option><option>RAIO 3KM</option>
+          <option>RAIO 4KM</option><option>RAIO 5KM</option><option>RAIO 6KM</option>
+          <option>RAIO 7KM</option><option>RAIO 8KM</option><option>RAIO 9KM</option>
+          <option>RAIO 10KM</option><option>RAIO 11KM</option><option>RAIO 12KM</option>
+          <option>RAIO 13KM</option><option>RAIO 14KM</option><option>RAIO 15KM</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Gênero</label>
+        <select id="a-genero" onchange="render()">
+          <option value="">—</option>
+          <option>HM</option>
+          <option>H</option>
+          <option>M</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Posicionamento</label>
+        <select id="a-pos" onchange="render()">
+          <option value="">—</option>
+          <option>ADV</option>
+          <option>STORIES</option>
+          <option>FEED</option>
+          <option>REELS</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Extra</label>
+        <input type="text" id="a-extra" placeholder="opcional" oninput="render()">
+      </div>
+    </div>
+    <div class="result-row">
+      <span class="result-text empty" id="a-result">Preencha os campos acima</span>
+      <button class="copy-btn" id="a-copy" onclick="copy('a-result','a-copy')">Copiar</button>
+    </div>
+  </div>
+
+  <!-- ANÚNCIO -->
+  <div class="card">
+    <div class="card-title">Anúncio</div>
+    <div class="fields">
+      <div class="field">
+        <label>Cod do Criativo</label>
+        <input type="text" id="ad-cod" placeholder="ID 01" oninput="render()">
+      </div>
+      <div class="field">
+        <label>Nome do Criativo</label>
+        <input type="text" id="ad-nome" placeholder="Vagas abertas" oninput="render()">
+      </div>
+      <div class="field">
+        <label>Formato</label>
+        <select id="ad-formato" onchange="render()">
+          <option value="">—</option>
+          <option>IMG</option>
+          <option>REEL</option>
+          <option>CAR</option>
+          <option>MOTION</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Extra</label>
+        <input type="text" id="ad-extra" placeholder="opcional" oninput="render()">
+      </div>
+    </div>
+    <div class="result-row">
+      <span class="result-text empty" id="ad-result">Preencha os campos acima</span>
+      <button class="copy-btn" id="ad-copy" onclick="copy('ad-result','ad-copy')">Copiar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let selectedEmojis = [];
+
+function toggleEmoji(btn) {
+  const v = btn.dataset.v;
+  const i = selectedEmojis.indexOf(v);
+  if (i > -1) { selectedEmojis.splice(i, 1); btn.classList.remove('sel'); }
+  else { selectedEmojis.push(v); btn.classList.add('sel'); }
+  render();
+}
+
+function g(id) { return document.getElementById(id); }
+function val(id) { const el = g(id); return el && el.value ? el.value.trim() : ''; }
+
+function setResult(id, text) {
+  const el = g(id);
+  if (!text || text === '—') { el.textContent = 'Preencha os campos acima'; el.classList.add('empty'); }
+  else { el.textContent = text; el.classList.remove('empty'); }
+}
+
+function render() {
+  const prod = val('c-produto'), obj = val('c-objetivo'), fmt = val('c-formato'), est = val('c-estrategia'), extra = val('c-extra');
+  const emojis = selectedEmojis.join('');
+  let camp = [prod, obj, fmt, est, emojis].filter(x => x).join(' | ');
+  if (extra) camp += ' - ' + extra.toUpperCase();
+  setResult('c-result', camp);
+
+  const pub = val('a-publico'), imin = val('a-imin'), imax = val('a-imax');
+  const loc = val('a-local'), gen = val('a-genero'), pos = val('a-pos'), aex = val('a-extra');
+  const idade = imin && imax ? imin + '-' + imax : (imin || imax || '');
+  let conj = [pub, idade, loc, gen, pos].filter(x => x).join(' | ');
+  if (aex) conj += ' | ' + aex.toUpperCase();
+  setResult('a-result', conj);
+
+  const cod = val('ad-cod'), nome = val('ad-nome').toUpperCase(), fmtAd = val('ad-formato'), adex = val('ad-extra');
+  const parts = [cod, nome, fmtAd, adex ? adex.toUpperCase() : ''].filter(x => x);
+  const anuncio = parts.length ? parts.join(' | ') + ' |' : '';
+  setResult('ad-result', anuncio);
+}
+
+function copy(resultId, btnId) {
+  const t = g(resultId).textContent;
+  if (!t || t === 'Preencha os campos acima') return;
+  navigator.clipboard.writeText(t).then(() => {
+    const b = g(btnId);
+    b.classList.add('ok'); b.textContent = '✓ Copiado';
+    setTimeout(() => { b.classList.remove('ok'); b.textContent = 'Copiar'; }, 1500);
+  });
+}
+</script>
+</body>
+</html>
